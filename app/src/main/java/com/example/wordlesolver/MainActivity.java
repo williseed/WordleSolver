@@ -1,12 +1,19 @@
 package com.example.wordlesolver;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.hardware.biometrics.BiometricManager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,13 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
     //these are whitelisted/blacklisted letter w/positions
     private char correct1, correct2, correct3, correct4, correct5;
-    private char incorrect1, incorrect2, incorrect3, incorrect4, incorrect5;
+    private String incorrect1, incorrect2, incorrect3, incorrect4, incorrect5;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        LinearLayout mainLayout = (LinearLayout)findViewById(R.id.mainLinearLayout);
         Button goBt = (Button) findViewById(R.id.goButton);
         TextView finalSolutionsTextView = (TextView) findViewById(R.id.finalSolutionsTextView);
         EditText correctEditText = (EditText) findViewById(R.id.editTextContainsCorrect);
@@ -70,24 +79,41 @@ public class MainActivity extends AppCompatActivity {
 
                 //check letters at positions for blacklist
                 if(!incorrectEditText1.getText().toString().equals(""))
-                    incorrect1 =  incorrectEditText1.getText().toString().toLowerCase().charAt(0);
+                    incorrect1 =  incorrectEditText1.getText().toString().toLowerCase();
                 if(!incorrectEditText2.getText().toString().equals(""))
-                    incorrect2 =  incorrectEditText2.getText().toString().toLowerCase().charAt(0);
+                    incorrect2 =  incorrectEditText2.getText().toString().toLowerCase();
                 if(!incorrectEditText3.getText().toString().equals(""))
-                    incorrect3 =  incorrectEditText3.getText().toString().toLowerCase().charAt(0);
+                    incorrect3 =  incorrectEditText3.getText().toString().toLowerCase();
                 if(!incorrectEditText4.getText().toString().equals(""))
-                    incorrect4 =  incorrectEditText4.getText().toString().toLowerCase().charAt(0);
+                    incorrect4 =  incorrectEditText4.getText().toString().toLowerCase();
                 if(!incorrectEditText5.getText().toString().equals(""))
-                    incorrect5 =  incorrectEditText5.getText().toString().toLowerCase().charAt(0);
+                    incorrect5 =  incorrectEditText5.getText().toString().toLowerCase();
 
                 //call all check functions, print, then clear all variables for next guess
                 useAllCheckMethods();
                 finalSolutionsTextView.setText(copyFinalWordsAnswer());
                 clearEverything();
+                closeKeyboard(mainLayout);
             }
         });
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if(R.id.hint == itemId){
+            hintMessage();
+            return true;
+        }
+        return false;
     }
 
     void checkContains(){
@@ -113,11 +139,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-    void checkCantContainLetterAt(int index, char character){
-        for (int x = 0; x < currentSolutions.size(); x++) {
-            if(currentSolutions.get(x).charAt(index) == character) {
-                currentSolutions.remove(x);
-                x--;
+    void checkCantContainLetterAt(int index, String characters){
+        for(int x = 0; x < characters.length(); x++){
+            for (int y = 0; y < currentSolutions.size(); y++) {
+                if (currentSolutions.get(y).charAt(index) == characters.charAt(x)) {
+                    currentSolutions.remove(y);
+                    y--;
+                }
             }
         }
     }
@@ -155,19 +183,19 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //4. Making sure incorrect letter not at index
-        if(incorrect1 != '\u0000') {
+        if(incorrect1 != null) {
             checkCantContainLetterAt(0,incorrect1);
         }
-        if(incorrect2 != '\u0000') {
+        if(incorrect2 != null) {
             checkCantContainLetterAt(1,incorrect2);
         }
-        if(incorrect3 != '\u0000') {
+        if(incorrect3 != null) {
             checkCantContainLetterAt(2,incorrect3);
         }
-        if(incorrect4 != '\u0000') {
+        if(incorrect4 != null) {
             checkCantContainLetterAt(3,incorrect4);
         }
-        if(incorrect5 != '\u0000') {
+        if(incorrect5 != null) {
             checkCantContainLetterAt(4,incorrect5);
         }
     }
@@ -203,6 +231,22 @@ public class MainActivity extends AppCompatActivity {
         currentSolutions.removeAll(currentSolutions);
         incorrectLetters = correctLetters = null;
         correct1 = correct2 = correct3 = correct4 = correct5 = '\u0000';
-        incorrect1 = incorrect2 = incorrect3 = incorrect4 = incorrect5 = '\u0000';
+        incorrect1 = incorrect2 = incorrect3 = incorrect4 = incorrect5 = "";
     }
+
+    void closeKeyboard(LinearLayout mainLayout)
+    {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mainLayout.getWindowToken(), 0);
+    }
+
+    void hintMessage(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Advanced Settings");
+        builder.setMessage("You can add multiple letters to each of the five locations in the 'Enter Incorrect Letter Place' section");
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 }
