@@ -18,19 +18,23 @@ public class AddWordlist extends AppCompatActivity {
 
         EditText wordlistEditText = (EditText) findViewById(R.id.wordlistEditText);
         Button enterWordlistButton = (Button) findViewById(R.id.enterWordlistButton);
-
         enterWordlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String newWordlist = wordlistEditText.getText().toString();
-                String[] newWordlistArray = newWordlist.split(",");
+                if(!newWordlist.equals("")) {
+                    String[] newWordlistArray = newWordlist.split(",");
 
-                Intent intent = new Intent(AddWordlist.this, MainActivity.class);
-                intent.putExtra("key",newWordlistArray);
+                    Intent intent = new Intent(AddWordlist.this, MainActivity.class);
+                    intent.putExtra("key", newWordlistArray);
+                    finish();
+                    AddWordlist.this.startActivity(intent);
+                }
                 finish();
-                AddWordlist.this.startActivity(intent);
             }
         });
 
     }
+
+
 }
