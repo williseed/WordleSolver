@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //checks if user added a custom wordlist
                 Bundle extras = getIntent().getExtras();
-                if(extras.containsKey("key")){
+                if(extras != null && extras.containsKey("key")){
                     possibleSolutions = extras.getStringArray("key");
                 }
 
@@ -292,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
         currentSolutions.removeAll(currentSolutions);
         possibleSolutions = DEFAULT_WORDLIST;
         clearInputVariables();
+
 
 
     }
